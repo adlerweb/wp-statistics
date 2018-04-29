@@ -921,19 +921,21 @@ class WP_Statistics {
 	 */
 	public function get_UserAgent() {
 		
+		$noagent = array(
+			'browser'  => _x( 'Unknown', 'Browser', 'wp-statistics' ),
+			'platform' => _x( 'Unknown', 'Platform', 'wp-statistics' ),
+			'version'  => _x( 'Unknown', 'Version', 'wp-statistics' ),
+		);
+		
 		if ( $this->user_optout ) {
-			return '';
+			return $noagent;
 		}
 
 		// Parse the agent string.
 		try {
 			$agent = parse_user_agent();
 		} catch ( Exception $e ) {
-			$agent = array(
-				'browser'  => _x( 'Unknown', 'Browser', 'wp-statistics' ),
-				'platform' => _x( 'Unknown', 'Platform', 'wp-statistics' ),
-				'version'  => _x( 'Unknown', 'Version', 'wp-statistics' ),
-			);
+			$agent = $noagent;
 		}
 
 		// null isn't a very good default, so set it to Unknown instead.
