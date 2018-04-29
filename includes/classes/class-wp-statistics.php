@@ -29,6 +29,12 @@ class WP_Statistics {
 	 */
 	public $agent;
 	/**
+	 * User doesn't want to be tracked
+	 *
+	 * @var bool
+	 */
+	public $user_optout = false;
+	/**
 	 * a coefficient to record number of visits
 	 *
 	 * @var int
@@ -405,7 +411,7 @@ class WP_Statistics {
 		// Hash IP if the Opt-Out cookie is 0
 		if ( isset( $_COOKIE['wp_statistics_opt_out'] ) and $_COOKIE['wp_statistics_opt_out'] == 0 ) {
 			$this->ip_hash = $get_hash;
-
+			$this->user_optout = true;
 			return;
 		}
 
@@ -914,6 +920,10 @@ class WP_Statistics {
 	 * @return array|\string[]
 	 */
 	public function get_UserAgent() {
+		
+		if ( $this->user_optout ) {
+			return '';
+		}
 
 		// Parse the agent string.
 		try {
@@ -954,6 +964,11 @@ class WP_Statistics {
 	 * @return array|bool|string|void
 	 */
 	public function get_Referred( $default_referrer = false ) {
+		
+		if ( $this->user_optout ) {
+			return '';
+		}
+		
 		if ( $this->referrer !== false ) {
 			return $this->referrer;
 		}
@@ -1206,7 +1221,7 @@ class WP_Statistics {
 
 		// If no URL was passed in, get the current referrer for the session.
 		if ( ! $url ) {
-			$url = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : false;
+			$url = isset( $_SERVER['HTTP_REFERER'] ) ? $this->get_Referred() : false;
 		}
 
 		// If there is no URL and no referrer, always return false.
