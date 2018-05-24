@@ -43,6 +43,14 @@ class WP_Statistics_Hits {
 		if ( $WP_Statistics->get_option( 'record_exclusions' ) ) {
 			$this->exclusion_record = true;
 		}
+		
+		// Disable any further processing if user opted out
+		if ( $WP_Statistics->user_optout ) {
+			$this->exclusion_match  = true;
+			$this->exclusion_reason = 'optout';
+
+			return;
+		}
 
 		// Create a IP Tools instance from the current IP address for use later.
 		// Fall back to the localhost if it can't be parsed.
@@ -78,6 +86,7 @@ class WP_Statistics_Hits {
 		 * The follow exclusion checks are done during the class construction so we don't have to execute them twice if we're tracking visits and visitors.
 		 *
 		 * Order of exclusion checks is:
+		 *              0 - User Opt-Out
 		 *		1 - AJAX calls
 		 * 		2 - CronJob
 		 *		3 - Robots
