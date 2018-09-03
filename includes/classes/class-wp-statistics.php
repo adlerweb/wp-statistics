@@ -442,7 +442,7 @@ class WP_Statistics {
 		// Hash IP if the Opt-Out cookie is 0 or DNT is set
 		if ( ( isset( $_COOKIE['wp_statistics_opt_out'] ) and $_COOKIE['wp_statistics_opt_out'] == 0 ) or ( isset( $_SERVER['HTTP_DNT'] ) and $_SERVER['HTTP_DNT'] == '1' and ( ! isset( $_COOKIE['wp_statistics_opt_out'] ) or $_COOKIE['wp_statistics_opt_out'] != 1 ) ) ) {
 			$this->ip_hash = $get_hash;
-			$this->user_optout = true;
+
 			return;
 		}
 
@@ -756,6 +756,7 @@ class WP_Statistics {
 		$options['search_converted'] = 1;
 
 		// If this is a first time install or an upgrade and we've added options, set some intelligent defaults.
+		$options['anonymize_ips']         = false;
 		$options['geoip']                 = false;
 		$options['browscap']              = false;
 		$options['useronline']            = true;
@@ -890,6 +891,11 @@ class WP_Statistics {
 		if ( false === $this->ip ) {
 			$this->ip = '127.0.0.1';
 		}
+
+		// If the anonymize IP enabled for GDPR.
+		if ( $this->get_option( 'anonymize_ips' ) == true ) {
+            $this->ip = substr($this->ip, 0, strrpos($this->ip, '.')).'.000';
+        }
 
 		return $this->ip;
 	}
